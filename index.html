@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html manifest="scrabble.appcache">
+<head>
+  <title>Scrabble</title>
+  <meta http-equiv="Cache-control" content="no-cache">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="author" content="Andrew Aaron">
+<script src="js/jquery-2.2.3.min.js"></script>
+
+<script src="js/modernizr.js"></script>
+<script src="js/board.js"></script>
+<script src="js/game.js"></script>
+<script src="js/worker.js"></script>
+<!-- Add fancyBox -->
+<link rel="stylesheet" href="./fancybox/source/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen" />
+<script type="text/javascript" src="./fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+<script>
+$(document).ready(function() {
+	$(".various").fancybox({
+		maxWidth	: 800,
+		maxHeight	: 600,
+		fitToView	: false,
+		width		: '70%',
+		height		: '50%',
+		autoSize	: false,
+		closeClick	: false,
+		openEffect	: 'none',
+		closeEffect	: 'none'
+	});
+});
+//saved in local storage
+var timeTaken = 0;
+
+//constants
+var points = [1,3,3,2,1,4,2,4,1,8,5,1,3,1,1,3,10,1,1,1,1,4,4,8,4,10,0];
+var tripleWord = [0,7,14,105,119,210,217,224];
+var doubleLetter = [3,11,36,38,45,52,59,92,96,98,102,108,116,122,126,128,132,165,172,179,186,188,213,221];
+var doubleWord = [16,32,48,64,28,42,56,70,208,192,176,160,196,182,168,154];
+var tripleLetter = [20,24,76,80,84,88,136,140,144,148,200,204];
+var points = [1,3,3,2,1,4,2,4,1,8,5,1,3,1,1,3,10,1,1,1,1,4,4,8,4,10,0];
+var passes = 0;
+//for gui
+var timer;
+var exchange = false;
+var thinking = false;
+var selectedSpace;
+
+  </script>
+  <link href="css/script.css" rel="stylesheet" type="text/css" >
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+  <style>
+
+  </style>
+  </head>
+  <body>
+    <a class="various" href="#inline" id="pickatile"></a>
+    <a class="various" href="#inline2" id="newgamelink"></a>
+    <a class="various" href="#inline3" id="helplink"></a>
+    <div id="inline2" style="display:none;text-align:center">
+      <h2>Are you sure you want to start a new game?</h2><br><br><br>
+      <button id="newgame" class="btn">Yes</button>
+      <button id="nobutton" class="btn" onclick="$.fancybox.close()">No</button>
+    </div>
+    <div id="inline3" style="display:none;text-align:center;color:white">
+      <h2>Help</h2>
+      - Click a square on the board and it will be selected with a <span style="color:green">green</span> border.<br>
+      <span style="line-height:40px;">- Next set the arrow as down or across by clicking it.  <img src="./include/down.png" style="display:inline-block;width:auto;height:40px"></span><br>
+      - Next click the tiles in the order you'd like them on the board.<br><br>
+      - Double click to remove a tile or go to 'Undo' on the menu.<br><br>
+      - If your browser supports it, you can also drag and drop the tiles where you want them to go.
+      <hr>
+      - You can play solitaire or against the computer by clicking the <strong>Solitaire</strong> switch.<hr>
+      The usual <a href="http://www.scrabblesite.com/scrabble/rules/" target="_blank">Scrabble rules</a> apply.
+      <hr>
+      This was made by <a href="http://AndrewAaronDev.com" target="_blank">Andrew Aaron</a> as a school project, no copyright infringement intended.
+
+    </div>
+    <div id="inline" style="display:none">
+      <h2>Pick a letter</h2>
+      <div class="tile pickatile">A</div>
+      <div class="tile pickatile">B</div>
+      <div class="tile pickatile">C</div>
+      <div class="tile pickatile">D</div>
+      <div class="tile pickatile">E</div>
+      <div class="tile pickatile">F</div>
+      <div class="tile pickatile">G</div>
+      <div class="tile pickatile">H</div>
+      <div class="tile pickatile">I</div>
+      <div class="tile pickatile">J</div>
+      <div class="tile pickatile">K</div>
+      <div class="tile pickatile">L</div>
+      <div class="tile pickatile">M</div>
+      <div class="tile pickatile">N</div>
+      <div class="tile pickatile">O</div>
+      <div class="tile pickatile">P</div>
+      <div class="tile pickatile">Q</div>
+      <div class="tile pickatile">R</div>
+      <div class="tile pickatile">S</div>
+      <div class="tile pickatile">T</div>
+      <div class="tile pickatile">U</div>
+      <div class="tile pickatile">V</div>
+      <div class="tile pickatile">W</div>
+      <div class="tile pickatile">X</div>
+      <div class="tile pickatile">Y</div>
+      <div class="tile pickatile">Z</div>
+    </div>
+<div id="main" class="clearfix">
+  <div id="topbar">
+    <div class="aaburger">
+        <div class="aaham"></div>
+        <div class="aaham"></div>
+        <div class="aaham"></div>
+    </div>
+    <p>You: <span class="yourscore boxed" style="border:1px solid green;">0</span>
+      <span class="cscore">Computer: </span><span class="cscore computerscore boxed">0</span><br>
+    Time: <span class="timer boxed">0</span>
+    This move: <span class="turnscore boxed">0</span><br>
+    <span class="status" style="display:inline-block">Have fun!</span></p>
+    <div class="solbox"><label style="margin-bottom:2px">Solitaire</label>
+    <label class="switch">
+      <input type="checkbox" id="solitaire2">
+      <div class="slider round"></div>
+    </label>
+</div>
+    <nav style="display:none">
+      <ul>
+        <li class="undo">Undo</li>
+        <li class="exchange">Exchange</li>
+        <li class="pass">Pass</li>
+        <li class="newgameq" onclick="$('#newgamelink').click();">New Game</li>
+        <li onclick="$('#helplink').click();">Help</li>
+      </ul>
+    </nav>
+  </div>
+<table dropzone="move" align="center">
+<tr> <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr>  <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr>  <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr>  <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr>  <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr>  <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr>  <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr>  <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr>  <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr>  <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr>  <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr>  <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr>  <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr>  <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr>  <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+</table>
+<div id="rightside">
+<span class="label">Your score : </span><span class="score yourscore" style="border: 1px solid green">0</span><img src="./include/questionmark.png" id="qmark" onclick="$('#helplink').click();"/><br>
+<span class="label cscore">Computer score: </span><span class="score cscore computerscore" >0</span><br>
+<span class="label">Game time: </span><span class="score timer" >00:00:00</span>
+<br><br><br><br><br><br><br><br>
+<span class="label" style="width:200px;">Your move: </span><span class="score turnscore" >0</span>
+<!-- Rounded switch -->
+<label>Solitaire</label>
+<label class="switch">
+  <input type="checkbox" id="solitaire" >
+  <div class="slider round"></div>
+</label>
+<div class="status statusfull">Have fun!</div>
+<div id="doodle">
+<img src="./include/m0122.gif" id="doodlepic"/>
+</div><br>
+<div>
+<button class="btn confirm">Play</button>
+<button class="btn undo">Undo</button>
+<button class="btn exchange">Exchange</button>
+<button class="btn pass">Pass</button>
+<button class="btn newgameq" onclick="$('#newgamelink').click();">New Game</button>
+</div>
+</div>
+<div id="tiles" dropzone="move">
+
+<div id="direction"><img src="./include/down.png"></div>
+<div id="circlebtn" class="confirm">Play</div>
+</div>
+
+  </body>
+  </html>
