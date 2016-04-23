@@ -546,32 +546,6 @@ function verifyWords(newwords) {
   }
   return true;
 }
-function updateData(updaterFunction) {
-  const dbName = "NewerScrabbleDB";
-  var request = indexedDB.open(dbName, 2);
-  request.onerror = function(event) {
-    console.log("Something went wrong " + event.target.errorCode);
-  };
-  request.onsuccess = function(event) {
-    db = event.target.result;
-    var objectStore = db.transaction(["game"], "readwrite").objectStore("game");
-    var request = objectStore.get("key");
-    request.onerror = function(event) {
-      console.log('Something went wrong');
-    };
-    request.onsuccess = function(event) {
-      var data = updaterFunction(request.result);
-      var requestUpdate = objectStore.put(data);
-      requestUpdate.onerror = function(event) {
-       console.log('Something went wrong');
-      };
-      requestUpdate.onsuccess = function(event) {
-      };
-    };
-  };
-  request.onupgradeneeded = function(event) {
-  };
-}
 function getTiles(letters,youNum,computerNum) {
   for (i=0;i<youNum&&letters.remaining.length>0;i++) {
     var random = Math.floor(Math.random() * letters.remaining.length) + 0;
@@ -598,27 +572,4 @@ function getPoints(letter,position) {
 function rowEnd(num) {
   if (num > 0) return Math.ceil((num + 1)/15.0) * 15 - 1;
   return 15;
-}
-function getData(callback) {
-  const dbName = "NewerScrabbleDB";
-  if (typeof indexedDB === 'undefined') callback({error:"Browser not supported, sorry"})
-  var request = indexedDB.open(dbName, 2);
-  request.onerror = function(event) {
-    console.log("Something went wrong " + event.target.errorCode);
-  };
-  request.onsuccess = function(event) {
-    db = event.target.result;
-    var objectStore = db.transaction(["game"], "readonly").objectStore("game");
-    var request = objectStore.get("key");
-    request.onerror = function(event) {
-      console.log('Something went wrong');
-    };
-    request.onsuccess = function(event) {
-      var game = request.result;
-      callback(game);
-    };
-  };
-  request.onupgradeneeded = function(event) {
-    console.log('upgrade needed');
-  };
 }
