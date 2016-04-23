@@ -60,28 +60,33 @@ $(function() {
     else {
       updateData(function(currentGame) {
         var putBack = [];
-        if ($('.tile[data-sel="true"]').length > 7) {
+        console.log("Before");
+        console.log(JSON.stringify(currentGame.letters));
+        if (currentGame.letters.remaining < 7) {
           $('.status').html("There aren't enough letters remaining");
-          return;
+          return currentGame;
         }
         $('.tile[data-sel="true"]').each(function() {
-          putBack.push(parseInt($(this).attr('data-letter')));
           var remtile;
           if (parseInt($(this).attr('data-letter')) >= 26) remtile = 26;
           else remtile = parseInt($(this).attr('data-letter'));
+          putBack.push(remtile);
           currentGame.letters.myTiles.splice(currentGame.letters.myTiles.indexOf(remtile),1);
           $(this).remove();
         });
         newLetters = getTiles(currentGame.letters,putBack.length,0).myTiles.slice(currentGame.letters.myTiles.length - putBack.length,currentGame.letters.myTiles.length);
         receiveTiles(newLetters);
         currentGame.letters.remaining = currentGame.letters.remaining.concat(putBack);
+        console.log("After");
+        console.log(JSON.stringify(currentGame.letters));
         $('.status').html(' ');
         $('.exchange').html('Exchange');
         $('#circlebtn').html('Play');
         return currentGame;
       });
-      if (!$('#solitaire').is(':checked')) confirmTurn(true);
-      else countScore();
+      //I couldn't get this to run onsuccess from the update for some reason so it was updating again from the worker before this was updated. uggh
+      setTimeout(function() { if (!$('#solitaire').is(':checked')) confirmTurn(true);
+      else countScore(); },500);
     }
 
   });
@@ -229,7 +234,8 @@ String.prototype.toHHMMSS = function () {
     if (hours   < 10) {hours   = "0"+hours;}
     if (minutes < 10) {minutes = "0"+minutes;}
     if (seconds < 10) {seconds = "0"+seconds;}
-    var time    = hours+':'+minutes+':'+seconds;
+    if (isNaN(hours)) time = "00:00:00";
+    else var time    = hours+':'+minutes+':'+seconds;
     return time;
 }
 function receiveTiles(tiles) {
@@ -290,6 +296,7 @@ function dbInit() {
       };
       transaction.oncomplete = function(event) {
         console.log("DB created successfully")
+        $('#newgame').click();
       };
       transaction.onerror = function(event) {
         //$('.status').html("Something went wrong, try reloading");
@@ -337,7 +344,7 @@ function updateData(updaterFunction) {
 function loadGame(savedGame) {
   $(".yourscore").text(savedGame.scores.you);
   $('.computerscore').text(savedGame.scores.computer);
-  $('.timer').html(localStorage.getItem('timeTaken').toString().toHHMMSS());
+  if (localStorage.getItem('timeTaken')) $('.timer').html(localStorage.getItem('timeTaken').toString().toHHMMSS());
   timer = setInterval(function() { localStorage.setItem('timeTaken',parseInt(localStorage.getItem('timeTaken')) + 1); $('.timer').html(localStorage.getItem('timeTaken').toString().toHHMMSS()) },1000);
   receiveTiles(savedGame.letters.myTiles);
   putTiles(savedGame.board);
