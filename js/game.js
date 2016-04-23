@@ -60,8 +60,6 @@ $(function() {
     else {
       updateData(function(currentGame) {
         var putBack = [];
-        console.log("Before");
-        console.log(JSON.stringify(currentGame.letters));
         if (currentGame.letters.remaining < 7) {
           $('.status').html("There aren't enough letters remaining");
           return currentGame;
@@ -77,8 +75,6 @@ $(function() {
         newLetters = getTiles(currentGame.letters,putBack.length,0).myTiles.slice(currentGame.letters.myTiles.length - putBack.length,currentGame.letters.myTiles.length);
         receiveTiles(newLetters);
         currentGame.letters.remaining = currentGame.letters.remaining.concat(putBack);
-        console.log("After");
-        console.log(JSON.stringify(currentGame.letters));
         $('.status').html(' ');
         $('.exchange').html('Exchange');
         $('#circlebtn').html('Play');
@@ -398,39 +394,44 @@ function confirmTurn(pass) {
        $('#doodlepic').attr('src','./include/m1708.gif');
        $('.computerscore').css('border','1px solid green');
        $('.yourscore').css('border','1px solid white');
-       w.postMessage({ newLetters: newLetters,solitaire: $('#solitaire').is(':checked'),checkOnly:false });
-       w.onmessage = function(event) {
-          if (event.data.Error) $('.status').html(event.data.Error);
-          else {
-            $('.tile[draggable="true"][data-board-position]').each(function() {
-              $(this).attr('draggable','false');
-            });
-            response = event.data;
-            receiveTiles(response.yourNewTiles);
-            $('.yourscore').html(response.yourScore);
-            $('.computerscore').html(response.computerScore);
-            putTiles(response.boardNewTiles);
-            $cards = $('.tile:hidden:not(.pickatile)');
-            var time = 500;
-            $cards.each(function(index) {
-                var ugghthis = $(this);
-                if (index +1 == $cards.length) setTimeout(function(){ ugghthis.show(); $cards.children().addClass('highlight'); }, time)
-                else setTimeout(function(){ ugghthis.show(); }, time)
-                time += 500;
-            });
-            $('.status').html(response.message);
-            countScore();
-            if (response.passed) localStorage.setItem('passes',(parseInt(localStorage.getItem('passes')) || 0) + 1);
-            else localStorage.setItem('passes',0);
-            if (parseInt(localStorage.getItem('passes')) > 3 || response.gameOver == true) {
-              gameOver();
+       getData(function(currentG) {
+         var justincase = { currentG: currentG,newLetters: newLetters,solitaire: $('#solitaire').is(':checked'),checkOnly:false }
+         w.postMessage(justincase);
+         w.onmessage = function(event) {
+            if (event.data.Error) $('.status').html(event.data.Error);
+            else {
+              $('.tile[draggable="true"][data-board-position]').each(function() {
+                $(this).attr('draggable','false');
+              });
+              response = event.data;
+              currentG = response.currentG;
+              receiveTiles(response.yourNewTiles);
+              $('.yourscore').html(response.yourScore);
+              $('.computerscore').html(response.computerScore);
+              putTiles(response.boardNewTiles);
+              $cards = $('.tile:hidden:not(.pickatile)');
+              var time = 500;
+              $cards.each(function(index) {
+                  var ugghthis = $(this);
+                  if (index +1 == $cards.length) setTimeout(function(){ ugghthis.show(); $cards.children().addClass('highlight'); }, time)
+                  else setTimeout(function(){ ugghthis.show(); }, time)
+                  time += 500;
+              });
+              $('.status').html(response.message);
+              countScore();
+              if (response.passed) localStorage.setItem('passes',(parseInt(localStorage.getItem('passes')) || 0) + 1);
+              else localStorage.setItem('passes',0);
+              if (parseInt(localStorage.getItem('passes')) > 3 || response.gameOver == true) {
+                gameOver();
+              }
             }
-          }
-          thinking = false;
-          $('#doodlepic').attr('src','./include/m0122.gif');
-          $('.computerscore').css('border','1px solid white');
-          $('.yourscore').css('border','1px solid green');
-      };
+            thinking = false;
+            $('#doodlepic').attr('src','./include/m0122.gif');
+            $('.computerscore').css('border','1px solid white');
+            $('.yourscore').css('border','1px solid green');
+            updateData(function(currentGAgain) { return currentG; });
+        };
+      });
     }
     else {
       document.getElementById("status").innerHTML = "Sorry, your browser does not support Web Workers...";

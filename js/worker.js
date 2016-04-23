@@ -113,6 +113,7 @@ onmessage = function(e) {
   var newTiles = e.data.newLetters;
   var solitaire = e.data.solitaire;
   var checkOnly = e.data.checkOnly;
+  var currentGame = e.data.currentG;
   if (!checker) {
     var file = "../TWL06.txt";
     var xmlhttp = new XMLHttpRequest();
@@ -125,7 +126,6 @@ onmessage = function(e) {
     }
   }
   if (checkOnly) {
-    getData(function(currentGame) {
       if (currentGame.error) { response.Error = currentGame.error; postMessage(response); return; }
       var count = 0;
       for (i=0;i<newTiles.length;i++) {
@@ -146,10 +146,7 @@ onmessage = function(e) {
       }
       postMessage(response);
       return;
-    });
-    return;
   };
-  getData(function(currentGame) {
     if (currentGame.error) { response.Error = currentGame.error; postMessage(response); return; }
     //if there are no newTiles we can go right to the computer's turn... gotta count them though I guess
     var count = 0;
@@ -219,12 +216,8 @@ onmessage = function(e) {
     response.boardNewTiles = boardNewTiles;
     response.yourNewTiles = newLetters;
     response.passed = passed;
-    var cg = currentGame
+    response.currentG = currentGame;
     postMessage(response);
-    //I had to do the updateData in a seaparate function because the connection times out after a minute
-    updateData(function(currentGame) { return cg; });
-  });
-
 };
 function computerTurn(currentGame) {
   var boardNewTiles = [];

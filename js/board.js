@@ -114,15 +114,17 @@ function countScore() {
     if(typeof(w) == "undefined") {
       w = new Worker("js/worker.js");
     }
-    w.postMessage({ newLetters: newLetters,solitaire: true,checkOnly:true });
-    w.onmessage = function(event) {
-      if (event.data.Error) {
-        $('.status').html(event.data.Error);
-      }
-      else if (event.data.Score != null) {
-         $('.turnscore').text(event.data.Score);
+    getData(function(currentG) {
+      w.postMessage({ currentG:currentG,newLetters: newLetters,solitaire: true,checkOnly:true });
+      w.onmessage = function(event) {
+        if (event.data.Error) {
+          $('.status').html(event.data.Error);
+        }
+        else if (event.data.Score != null) {
+           $('.turnscore').text(event.data.Score);
+         }
        }
-     }
+     });
   }
   else {
     document.getElementById("status").innerHTML = "Sorry, your browser does not support Web Workers...";
