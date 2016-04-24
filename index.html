@@ -6,7 +6,32 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="author" content="Andrew Aaron">
 <script src="js/jquery-2.2.3.min.js"></script>
+<script src="js/jquery-ui.js"></script>
+<script src="js/jquery.ui.touch-punch.min.js"></script>
+<script>
+$(function() {
+$( "#tiles" ).droppable({
+  accept: function(el) {
+    if (thinking && el.hasAttr('data-board-position')) return false;
+    return true;
+  },
+  drop: function(event, ui) {
+    var el = ui.draggable;
+    if (el[0].hasAttribute('data-board-position')) {
+      $('td:eq(' + el.attr('data-board-position') + ')').removeAttr('taken').droppable('enable');
+      el.removeAttr('data-board-position');
+    }
 
+    if (el.attr('data-letter') >= 26) {
+      el[0].childNodes[1].innerHTML = "";
+    }
+    if (!thinking) countScore();
+  }
+});
+});
+
+function dbInit() {}
+</script>
 <script src="js/modernizr.js"></script>
 <script src="js/board.js"></script>
 <script src="js/game.js"></script>
@@ -45,6 +70,7 @@ var timer;
 var exchange = false;
 var thinking = false;
 var selectedSpace;
+var lastMove = [];
 
   </script>
   <link href="css/script.css" rel="stylesheet" type="text/css" >

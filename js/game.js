@@ -1,12 +1,17 @@
 $(function() {
+  $('.computerscore').click(function() {
+    $('.highlight').removeClass('highlight');
+    setTimeout(function() {
+      $.each(lastMove,function(index,value) {
+        $('.tile[data-board-position="' + value + '"]').children().addClass('highlight');
+      });
+    },10);
+  });
   $('.aaburger,li').click(function() {
     $('nav').slideToggle();
   });
   $('#direction').click(function() { $(this).toggleClass('rightArrow') });
   $('.pickatile').click(function() {
-    beingdragged.style.left = beingdragged.putleft + 'px';
-    beingdragged.style.top = beingdragged.puttop + 'px';
-    beingdragged.setAttribute('data-board-position',beingdragged.putsquare);
     beingdragged.setAttribute('data-letter',$(this).html().charCodeAt(0) - 65 + 26);
     beingdragged.childNodes[1].innerHTML = $(this).html();
     $.fancybox.close();
@@ -27,12 +32,14 @@ $(function() {
       clearInterval(timer);
       $(".yourscore").text('0');
       $('.computerscore').text('0');
+      $('.turnscore').text('0');
       localStorage.setItem('passes',0);
       localStorage.setItem('timeTaken',0);
       timer = setInterval(function() { localStorage.setItem('timeTaken',parseInt(localStorage.getItem('timeTaken')) + 1); $('.timer').html(localStorage.getItem('timeTaken').toString().toHHMMSS()) },1000);
       $('.timer').html(localStorage.getItem('timeTaken').toString().toHHMMSS());
       $('.tile:not(.pickatile)').remove();
-      currentGame.letters = getTiles(currentGame.letters,7,7);
+      if ($('#solitaire').is(':checked')) currentGame.letters = getTiles(currentGame.letters,7,0);
+      else currentGame.letters = getTiles(currentGame.letters,7,7);
       receiveTiles(currentGame.letters.myTiles);
       $('.computerscore').css('border','1px solid white');
       $('.yourscore').css('border','1px solid green');
@@ -107,14 +114,29 @@ $(function() {
     $('#solitaire2').prop('checked',check);
     $('.cscore').css({opacity: (check?"1.0":"0"), visibility: "visible"}).animate({opacity: (check?"0":"1.0")}, 200)
     localStorage.setItem('solitaire',check);
+    updateData(function(currentGame) {
+      if (check) {
+        if (currentGame.letters.computerTiles) {
+          currentGame.letters.remaining = currentGame.letters.remaining.concat(currentGame.letters.computerTiles);
+          currentGame.letters.computerTiles = [];
+        }
+      }
+      else {
+        if (currentGame.letters.remaining) {
+          var getthem = getTiles(currentGame.letters,0,7);
+          currentGame.letters = getthem;
+        }
+      }
+      return currentGame;
+    });
   });
   $('#solitaire2').click(function() { $('#solitaire').click(); })
   $('#main').on('dblclick','.tile',function() {
-    if ($(this).attr('draggable') == 'true' && !exchange) {
+    if ($(this).attr('data-draggable') == 'true' && !exchange) {
       var left = parseInt($('#tiles').css('left'),10);
       var top = parseInt($('#tiles').css('top'),10);
       var taken = [];
-      $('.tile[draggable="true"]').each(function() {
+      $('.tile[data-draggable="true"]').each(function() {
         taken.push(this.style.left + "-" + this.style.top);
       });
       while (taken.indexOf(left + 'px-' + top + 'px') > -1) {
@@ -130,7 +152,7 @@ $(function() {
     }
   });
   $('#main').on('click','.tile',function() {
-      if (exchange && $(this).attr('draggable') == 'true') {
+      if (exchange && $(this).attr('data-draggable') == 'true') {
         if ($(this).attr('data-sel') == 'true') {
           $(this).css('border','none').attr('data-sel','false');
         }
@@ -141,7 +163,7 @@ $(function() {
       else if ($(this).attr('data-board-position')) {
         $('td[data-table-position="' + $(this).attr('data-board-position') + '"]').click();
       }
-      else if (selectedSpace && $(this).attr('draggable') == 'true') {
+      else if (selectedSpace && $(this).attr('data-draggable') == 'true') {
         var start = parseInt(selectedSpace.attr('data-table-position'));
         var right = $('#direction').hasClass('rightArrow');
         if (right) {
@@ -190,10 +212,10 @@ $(function() {
     var left = parseInt($('#tiles').css('left'),10);
     var top = parseInt($('#tiles').css('top'),10);
     var taken = [];
-    $('.tile[draggable="true"]').each(function() {
+    $('.tile[data-draggable="true"]').each(function() {
       taken.push(this.style.left + "-" + this.style.top);
     });
-    $('.tile[data-board-position][draggable="true"]').each(function() {
+    $('.tile[data-board-position][data-draggable="true"]').each(function() {
         while (taken.indexOf(left + 'px-' + top + 'px') > -1) {
           if (left > parseInt($('#tiles').css('width'),10) + parseInt($('#tiles').css('left'),10)) { left = parseInt($('#tiles').css('left'),10); top += 60; }
           else left +=60;
@@ -238,7 +260,7 @@ function receiveTiles(tiles) {
   var left = parseInt($('#tiles').css('left'),10);
   var top = parseInt($('#tiles').css('top'),10);
   var taken = [];
-  $('.tile[draggable="true"]').each(function() {
+  $('.tile[data-draggable="true"]').each(function() {
     taken.push(this.style.left + "-" + this.style.top);
   });
   for (j=0;j<tiles.length;j++) {
@@ -255,7 +277,7 @@ function receiveTiles(tiles) {
       text: value
     }).appendTo($('<div/>',{ class: 'card__front',text: letter }).appendTo($('<div/>', {
         class: 'tile effect__click flipped',
-        draggable: 'true',
+        'data-draggable': true,
         'data-letter': tiles[j],
         'data-points': value,
         style: 'left:' + left + "px;top:" + top + 'px',
@@ -267,6 +289,12 @@ function receiveTiles(tiles) {
       var ugghthis = $(this);
       setTimeout( function(){ ugghthis.removeClass('flipped'); }, time)
       time += 500;
+  });
+  $( ".tile[data-draggable='true']" ).draggable({
+    revert: 'invalid',
+    activate: function(event,ui) {
+      beingdragged = ui.draggable[0];
+    }
   });
 }
 function dbInit() {
@@ -343,11 +371,37 @@ function loadGame(savedGame) {
   if (localStorage.getItem('timeTaken')) $('.timer').html(localStorage.getItem('timeTaken').toString().toHHMMSS());
   timer = setInterval(function() { localStorage.setItem('timeTaken',parseInt(localStorage.getItem('timeTaken')) + 1); $('.timer').html(localStorage.getItem('timeTaken').toString().toHHMMSS()) },1000);
   receiveTiles(savedGame.letters.myTiles);
-  putTiles(savedGame.board);
+  putTiles(savedGame.board,true);
+  $("td:not([taken])").droppable({
+    drop: function(event, ui) {
+      beingdragged = ui.draggable[0];
+      x = $(this)[0].getBoundingClientRect().left + 2 + window.pageXOffset;
+      y = $(this)[0].getBoundingClientRect().top + 2 + window.pageYOffset;
+      var dm = ui.draggable[0];
+      $(this).attr('taken',true).droppable('disable');
+      if (dm.hasAttribute('data-board-position')) {
+        $('td:eq(' + dm.getAttribute('data-board-position') + ')').removeAttr('taken').droppable('enable');
+      }
+      dm.setAttribute('data-board-position',event.target.getAttribute('data-table-position'));
+      dm.style.left = (x) + 'px';
+      dm.style.top = (y) + 'px';
+      if (dm.getAttribute('data-letter') >= 26) {
+        dm.setAttribute('data-letter',26);
+        dm.childNodes[1].innerHTML = "A";
+        $('#pickatile').click();
+        return false;
+      }
+      if (!thinking) countScore();
+    },
+    accept: function(el) {
+      return !thinking;
+    }
+  });
   $('.tile').show();
   if (localStorage.getItem('solitaire') == 'true') $('#solitaire').click();
 }
-function putTiles(board) {
+function putTiles(board,initial) {
+  lastMove = [];
   for (i=0;i<board.length;i++) {
     if (board[i] != null) {
       var td = document.getElementsByTagName('td')[i];
@@ -362,26 +416,31 @@ function putTiles(board) {
         text: value
       }).appendTo($('<div/>',{ class: 'card__front',text: letter }).appendTo($('<div/>', {
           class: 'tile effect__click',
-          draggable: 'false',
+          'data-draggable':false,
           'data-letter': tiles[j],
           'data-points': value,
           'data-board-position': i,
           style: 'left:' + x + "px;top:" + y + 'px;display:none',
       }).append($('<div/>',{ class: 'card__back' })).appendTo("#main")));
+      $('td:eq(' + i + ')').attr('taken',true);
+      if (!initial) {
+        $('td:eq(' + i + ')').droppable('disable');
+        lastMove.push(i);
+      }
     }
   }
 }
 function confirmTurn(pass) {
   if (exchange) { $('.exchange:eq(1)').click(); return; }
   if (thinking) return;
-  if (pass === true || $('.tile[draggable="true"][data-board-position]').length) {
+  if (pass === true || $('.tile[data-draggable="true"][data-board-position]').length) {
     newLetters = [];
     if (pass === true && !$('#solitaire').is(':checked')) {
       //take any tiles off the board before the computer plays
       $('.undo:eq(1)').click();
     }
     else {
-      $('.tile[draggable="true"][data-board-position]').each(function() {
+      $('.tile[data-draggable="true"][data-board-position]').each(function() {
         newLetters[$(this).attr('data-board-position')] = parseInt($(this).attr('data-letter'));
       });
     }
@@ -400,8 +459,8 @@ function confirmTurn(pass) {
          w.onmessage = function(event) {
             if (event.data.Error) $('.status').html(event.data.Error);
             else {
-              $('.tile[draggable="true"][data-board-position]').each(function() {
-                $(this).attr('draggable','false');
+              $('.tile[data-draggable="true"][data-board-position]').each(function() {
+                $(this).attr('data-draggable','false');
               });
               response = event.data;
               currentG = response.currentG;

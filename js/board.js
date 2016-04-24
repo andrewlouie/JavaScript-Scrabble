@@ -51,59 +51,10 @@ $(function() {
   if (!Modernizr.applicationcache || !Modernizr.postmessage || !Modernizr.cssanimations || !Modernizr.webworkers || !Modernizr.boxshadow) {
     $(".status").html("Your browser may not be supported");
   }
-
-  $('#main').on('dragstart','.tile',drag_start);
-  document.body.addEventListener('dragover',drag_over,false);
-  document.body.addEventListener('drop',drop,false);
 });
-function drag_start(event) {
-    beingdragged = event.target;
-    if (thinking && beingdragged.hasAttribute('data-board-position')) { event.preventDefault(); return; }
-    var style = window.getComputedStyle(event.target, null);
-    event.originalEvent.dataTransfer.setData("text/plain",
-    (parseInt(style.getPropertyValue("left"),10) - event.clientX) + ',' + (parseInt(style.getPropertyValue("top"),10) - event.clientY));
-}
-function drag_over(event) {
-    event.preventDefault();
-    return false;
-}
-function drop(event) {
-  if (event.target.tagName == "TD" || event.target.id == "tiles") {
-    var offset = event.dataTransfer.getData("text/plain").split(',');
-    var x = event.clientX + parseInt(offset[0],10);
-    var y = event.clientY + parseInt(offset[1],10);
-    var dm = beingdragged;
-    if (event.target.tagName == "TD") {
-      if (thinking) return;
-      if ($('div[data-board-position=' + event.target.getAttribute('data-table-position') + ']').length) return false;
-      x = event.target.getBoundingClientRect().left + 2 + window.pageXOffset;
-      y = event.target.getBoundingClientRect().top + 2 + window.pageYOffset;
-      if (dm.getAttribute('data-letter') >= 26) {
-        $('#pickatile').click();
-        beingdragged.putleft = x;
-        beingdragged.puttop = y;
-        beingdragged.putsquare = event.target.getAttribute('data-table-position');
-        return false;
-      }
-      dm.setAttribute('data-board-position',event.target.getAttribute('data-table-position'));
-    }
-    else {
-      if (thinking && dm.hasAttribute('data-board-position')) return;
-      dm.removeAttribute('data-board-position');
-      if (dm.getAttribute('data-letter') >= 26) {
-        dm.childNodes[1].innerHTML = "";
-      }
-    }
-    dm.style.left = (x) + 'px';
-    dm.style.top = (y) + 'px';
-    if (!thinking) countScore();
-    event.preventDefault();
-  }
-  return false;
-}
 function countScore() {
   newLetters = [];
-  $('.tile[draggable="true"][data-board-position]').each(function() {
+  $('.tile[data-draggable="true"][data-board-position]').each(function() {
     newLetters[$(this).attr('data-board-position')] = parseInt($(this).attr('data-letter'));
   });
   if (!newLetters.length) {
