@@ -133,6 +133,7 @@ $(function() {
   $('#solitaire2').click(function() { $('#solitaire').click(); })
   $('#main').on('dblclick','.tile',function() {
     if ($(this).attr('data-draggable') == 'true' && !exchange) {
+      $('td[data-table-position="' + $(this).attr('data-board-position') + '"]').removeAttr('taken').droppable('enable');
       var left = parseInt($('#tiles').css('left'),10);
       var top = parseInt($('#tiles').css('top'),10);
       var taken = [];
@@ -172,15 +173,15 @@ $(function() {
               var td = document.getElementsByTagName('td')[i];
               x = td.getBoundingClientRect().left + 2 + window.pageXOffset;
               y = td.getBoundingClientRect().top + 2 + window.pageYOffset;
+              $('td:eq(' + i + ')').attr('taken',true).droppable('disable');
+              $(this).attr('data-board-position',i).css('left',x + 'px').css('top',y + 'px');
               if ($(this).attr('data-letter') >= 26) {
                 beingdragged = $(this)[0];
+                beingdragged.setAttribute('data-letter',26);
+                beingdragged.childNodes[1].innerHTML = "A";
                 $('#pickatile').click();
-                beingdragged.putleft = x;
-                beingdragged.puttop = y;
-                beingdragged.putsquare = i;
                 return false;
               }
-              $(this).attr('data-board-position',i).css('left',x + 'px').css('top',y + 'px');
               countScore();
               break;
             }
@@ -192,15 +193,15 @@ $(function() {
               var td = document.getElementsByTagName('td')[i];
               x = td.getBoundingClientRect().left + 2 + window.pageXOffset;
               y = td.getBoundingClientRect().top + 2 + window.pageYOffset;
+              $('td:eq(' + i + ')').attr('taken',true).droppable('disable');
+              $(this).attr('data-board-position',i).css('left',x + 'px').css('top',y + 'px');
               if ($(this).attr('data-letter') >= 26) {
                 beingdragged = $(this)[0];
+                beingdragged.setAttribute('data-letter',26);
+                beingdragged.childNodes[1].innerHTML = "A";
                 $('#pickatile').click();
-                beingdragged.putleft = x;
-                beingdragged.puttop = y;
-                beingdragged.putsquare = i;
                 return false;
               }
-              $(this).attr('data-board-position',i).css('left',x + 'px').css('top',y + 'px');
               countScore();
               break;
             }
