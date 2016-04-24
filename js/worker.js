@@ -392,7 +392,6 @@ function verifyMove(currentGame,newTiles) {
   var doneh = false;
   var donev = false;
   var firsttile = true;
-  var score = 0;
   var turnscore = 0;
   for (i=0;i<newTiles.length;i++){
     if (newTiles[i] != null) {
@@ -455,6 +454,7 @@ function verifyMove(currentGame,newTiles) {
       }
       //if a horizontal word hasn't been made yet, or more than one new letter was placed vertically, we need to make a horizontal word:
       if (!doneh || !horizontal) {
+        var score = 0;
         //make j the new pointer
         var j = i;
         //start the word blank
@@ -494,6 +494,7 @@ function verifyMove(currentGame,newTiles) {
       }
       //if a vertical word hasn't been made yet, or more than one new letter was placed horizontally, we need to make a vertical word:
       if (!donev || !vertical) {
+        var score = 0;
         //reset word variable
         var word = "";
         //reset pointer to initial new letter
@@ -540,8 +541,8 @@ function verifyMove(currentGame,newTiles) {
   }
 }
   //50 bonus points for using all 7 tiles
-  if (count == 7) score += 50;
-  return { newwords:newwords,score:score };
+  if (count == 7) turnscore += 50;
+  return { newwords:newwords,score:turnscore };
 }
 function verifyWords(newwords) {
   //check the new words are in the dictionary
