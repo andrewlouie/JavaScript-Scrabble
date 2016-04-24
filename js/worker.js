@@ -309,7 +309,7 @@ function computerTurn(currentGame) {
         while (hh<aw[axy].length) {
           if (board[pointer] == null) {
             if (blanks > 0 && cTiles.indexOf(aw[axy].charCodeAt(hh) -65) == -1) newCTiles[pointer] = aw[axy].charCodeAt(hh) - 65 + 26;
-            newCTiles[pointer] = aw[axy].charCodeAt(hh) - 65;
+            else newCTiles[pointer] = aw[axy].charCodeAt(hh) - 65;
           }
           hh++;
           pointer += 15;
