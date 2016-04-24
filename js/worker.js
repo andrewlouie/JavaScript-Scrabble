@@ -177,8 +177,12 @@ onmessage = function(e) {
               currentGame.letters.myTiles.splice(currentGame.letters.myTiles.indexOf(remtile),1);
             }
           }
+          var oldLetters = currentGame.letters.myTiles.slice();
           //assign new tiles, add them to yourNewTiles
-          newLetters = getTiles(currentGame.letters,count,0).myTiles.slice(currentGame.letters.myTiles.length - count,currentGame.letters.myTiles.length);
+          var redoLetters = getTiles(currentGame.letters,count,0);
+          for (z=oldLetters.length;z<currentGame.letters.myTiles.length;z++) {
+            newLetters.push(currentGame.letters.myTiles[z]);
+          }
         }
       }
     }
