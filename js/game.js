@@ -33,11 +33,14 @@ $(function() {
       $(".yourscore").text('0');
       $('.computerscore').text('0');
       $('.turnscore').text('0');
+      $('.status').text('');
       localStorage.setItem('passes',0);
       localStorage.setItem('timeTaken',0);
       timer = setInterval(function() { localStorage.setItem('timeTaken',parseInt(localStorage.getItem('timeTaken')) + 1); $('.timer').html(localStorage.getItem('timeTaken').toString().toHHMMSS()) },1000);
       $('.timer').html(localStorage.getItem('timeTaken').toString().toHHMMSS());
       $('.tile:not(.pickatile)').remove();
+      $('td').removeAttr('taken');
+      dropInit();
       if ($('#solitaire').is(':checked')) currentGame.letters = getTiles(currentGame.letters,7,0);
       else currentGame.letters = getTiles(currentGame.letters,7,7);
       receiveTiles(currentGame.letters.myTiles);
@@ -217,6 +220,7 @@ $(function() {
       taken.push(this.style.left + "-" + this.style.top);
     });
     $('.tile[data-board-position][data-draggable="true"]').each(function() {
+      $('td[data-table-position="' + $(this).attr('data-board-position') + '"]').removeAttr('taken').droppable('enable');
         while (taken.indexOf(left + 'px-' + top + 'px') > -1) {
           if (left > parseInt($('#tiles').css('width'),10) + parseInt($('#tiles').css('left'),10)) { left = parseInt($('#tiles').css('left'),10); top += 60; }
           else left +=60;
@@ -373,6 +377,11 @@ function loadGame(savedGame) {
   timer = setInterval(function() { localStorage.setItem('timeTaken',parseInt(localStorage.getItem('timeTaken')) + 1); $('.timer').html(localStorage.getItem('timeTaken').toString().toHHMMSS()) },1000);
   receiveTiles(savedGame.letters.myTiles);
   putTiles(savedGame.board,true);
+  dropInit();
+  $('.tile').show();
+  if (localStorage.getItem('solitaire') == 'true') $('#solitaire').click();
+}
+function dropInit() {
   $("td:not([taken])").droppable({
     drop: function(event, ui) {
       beingdragged = ui.draggable[0];
@@ -398,8 +407,7 @@ function loadGame(savedGame) {
       return !thinking;
     }
   });
-  $('.tile').show();
-  if (localStorage.getItem('solitaire') == 'true') $('#solitaire').click();
+  $('td:not([taken])').droppable('enable');
 }
 function putTiles(board,initial) {
   lastMove = [];

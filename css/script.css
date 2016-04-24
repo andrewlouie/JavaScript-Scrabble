@@ -478,7 +478,7 @@ border-radius: 5px;
 .card__front {
 background-image:url(../include/bigtile.jpg);
 }
-.tile[draggable="true"][data-board-position] .card__front {
+.tile[data-draggable="true"][data-board-position] .card__front {
   -moz-box-shadow: inset 0 0 10px blue,1px 1px 0px 0px #4A3D24;
     -webkit-box-shadow: inset 0 0 10px blue,1px 1px 0px 0px #4A3D24;
     box-shadow: inset 0 0 10px blue,1px 1px 0px 0px #4A3D24;
