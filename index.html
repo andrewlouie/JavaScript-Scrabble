@@ -12,7 +12,7 @@
 $(function() {
 $( "#tiles" ).droppable({
   accept: function(el) {
-    if (thinking && el.hasAttr('data-board-position')) return false;
+    if (thinking && el.attr('data-board-position')) return false;
     return true;
   },
   drop: function(event, ui) {

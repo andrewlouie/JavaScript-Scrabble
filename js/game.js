@@ -72,20 +72,21 @@ $(function() {
         var putBack = [];
         if (currentGame.letters.remaining < 7) {
           $('.status').html("There aren't enough letters remaining");
-          return currentGame;
         }
-        $('.tile[data-sel="true"]').each(function() {
-          var remtile;
-          if (parseInt($(this).attr('data-letter')) >= 26) remtile = 26;
-          else remtile = parseInt($(this).attr('data-letter'));
-          putBack.push(remtile);
-          currentGame.letters.myTiles.splice(currentGame.letters.myTiles.indexOf(remtile),1);
-          $(this).remove();
-        });
-        newLetters = getTiles(currentGame.letters,putBack.length,0).myTiles.slice(currentGame.letters.myTiles.length - putBack.length,currentGame.letters.myTiles.length);
-        receiveTiles(newLetters);
-        currentGame.letters.remaining = currentGame.letters.remaining.concat(putBack);
-        $('.status').html(' ');
+        else {
+          $('.tile[data-sel="true"]').each(function() {
+            var remtile;
+            if (parseInt($(this).attr('data-letter')) >= 26) remtile = 26;
+            else remtile = parseInt($(this).attr('data-letter'));
+            putBack.push(remtile);
+            currentGame.letters.myTiles.splice(currentGame.letters.myTiles.indexOf(remtile),1);
+            $(this).remove();
+          });
+          newLetters = getTiles(currentGame.letters,putBack.length,0).myTiles.slice(currentGame.letters.myTiles.length - putBack.length,currentGame.letters.myTiles.length);
+          receiveTiles(newLetters);
+          currentGame.letters.remaining = currentGame.letters.remaining.concat(putBack);
+          $('.status').html(' ');
+        }
         $('.exchange').html('Exchange');
         $('#circlebtn').html('Play');
         return currentGame;
@@ -469,7 +470,7 @@ function confirmTurn(pass) {
             if (event.data.Error) $('.status').html(event.data.Error);
             else {
               $('.tile[data-draggable="true"][data-board-position]').each(function() {
-                $(this).attr('data-draggable','false');
+                $(this).attr('data-draggable','false').draggable('disable');
               });
               response = event.data;
               currentG = response.currentG;
