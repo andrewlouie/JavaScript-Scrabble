@@ -57,6 +57,7 @@ $(function() {
   $('.exchange').click(function() {
     if (thinking) return;
     exchange = !exchange;
+    var edone = false;
     if (exchange) {
       $('.status').html('Select letters to exchange and press confirm');
       $(this).html('Confirm');
@@ -75,6 +76,7 @@ $(function() {
         }
         else {
           $('.tile[data-sel="true"]').each(function() {
+            edone = true;
             var remtile;
             if (parseInt($(this).attr('data-letter')) >= 26) remtile = 26;
             else remtile = parseInt($(this).attr('data-letter'));
@@ -92,7 +94,7 @@ $(function() {
         return currentGame;
       });
       //I couldn't get this to run onsuccess from the update for some reason so it was updating again from the worker before this was updated. uggh
-      setTimeout(function() { if (!$('#solitaire').is(':checked')) confirmTurn(true);
+      setTimeout(function() { if (!$('#solitaire').is(':checked') && edone) confirmTurn(true);
       else countScore(); },500);
     }
 
