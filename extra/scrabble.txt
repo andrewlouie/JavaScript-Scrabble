@@ -1,0 +1,28 @@
+tablet view:
+menu bar at the top has scores/status/time/yourmove (2 lines) with hamburger button, drops down for 4 buttons, all but play
+board slightly smaller
+clicking on a tile brings up a bottom bar., has a big right/down arrow, click on that switches it. then just pick letters
+
+option to add tiles without dragging, just clicking, might also support IE then
+make a tablet view, fix width problem/resizing
+
+put the appcache back?
+----------------------------------------
+some words are comming up twice in aw if I have the same letter twice... might be worth removing if they're long
+if the computer has blanks we'll have to add another one and do the loop 26 times, but it's 650 times for 2 blanks. uggh. might have to do a random thing in there
+if I can't get it I should split the messages into my turn and it's turn
+
+I think I just thought of how to do the algorithm fast.
+all words go into array's 
+a[p][p][l][e] = apple
+start with each letter, check all the remaining letters, ect.  then if i get to the end and I have a blank I could check each letter...
+just not sure how to code it. probably array's aren't the best idea
+some sorta smart recursive function like the one I was almost working with for anagrams
+function(sofar,count) {
+var goforit = function(sofar,count) {
+goallen = count - 1
+for (a=0;a<goallen;a++) {
+
+}
+}
+}

@@ -1,0 +1,53 @@
+<html>
+<head>
+  <script>
+var words = ["ALLIGATOR","GARAGE","RADIOACTIVE","MATERIAL","AUTO","AUTOMOBILE","DOMAIN","RADIO","LIVE","RELIVE"];
+var trie = function() {
+    this.head = {};
+};
+trie.prototype.add = function(word) {
+    var current = this.head;
+    for (var i = 0; i < word.length; i++) {
+        if(!(word[i] in current)) {
+            current[word[i]] = {};
+        }
+        current = current[word[i]];
+    };
+    current.$ = 1;
+};
+trie.prototype.hasWord = function(word) {
+  console.log('cause here');
+    var current = this.head;
+    for (var i = 0; i < word.length; i++) {
+        if(!(word[i] in current)) {
+            return false;
+        }
+        current = current[word[i]];
+    };
+    return current.$ === 1;
+};
+checker = new trie();
+for (w in words) {
+  checker.add(words[w]);
+}
+var longestSubword = "";
+var fullWord = "";
+for (w in words) {
+  for (var i=0;i<words[w].length && longestSubword.length < words[w].substring(i).length;i++) {
+    var partWord = words[w].substring(i);
+    if (partWord.length <= longestSubword.length) continue;
+    for (var j=0;j<partWord.length;j++) {
+      var partWord2 = partWord.substring(0,j);
+      if (partWord2.length>longestSubword.length && checker.hasWord(partWord2)) {
+          longestSubword = partWord2;
+          fullWord = words[w];
+      }
+    }
+  }
+}
+console.log(longestSubword + " in " + fullWord);
+</script>
+</head>
+<body>
+
+</body></html>

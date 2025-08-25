@@ -147,7 +147,7 @@ onmessage = function(e) {
       postMessage(response);
       return;
   };
-    if (currentGame.error) { response.Error = currentGame.error; postMessage(response); return; }
+    if (currentGame != null && currentGame.error) { response.Error = currentGame.error; postMessage(response); return; }
     //if there are no newTiles we can go right to the computer's turn... gotta count them though I guess
     var count = 0;
     for (i=0;i<newTiles.length;i++) {
@@ -407,7 +407,7 @@ function verifyMove(currentGame,newTiles) {
           else if (tile(k) == null) space = true;
         }
         //check columns
-        for (k=i+15;k<224;k+=15) {
+        for (k=i+15;k<225;k+=15) {
           if (newTiles[k] != null) { vertical += 1; if (space2) problem = true; }
           else if (tile(k) == null) { space2 = true; }
         }
