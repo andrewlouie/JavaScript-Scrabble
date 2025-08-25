@@ -119,7 +119,7 @@ onmessage = function(e) {
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.open("GET", file, false);
     xmlhttp.send();
-    words = xmlhttp.responseText.split("\r\n");
+    words = xmlhttp.responseText.split("\n");
     checker = new trie();
     for (w in words) {
       checker.add(words[w]);
